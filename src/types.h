@@ -60,6 +60,7 @@ struct character {
     struct character_race *race;
     struct character_class *cls;
     unsigned short lvl;
+    unsigned int hp;
     struct item inventory[5];
 };
 

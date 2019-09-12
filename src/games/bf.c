@@ -4,10 +4,17 @@
 #include "../game.h"
 #include "../types.h"
 
+/* PROTOTYPES */
+
 static void bf_cleric_saves(struct saves *s);
 static void bf_fighter_saves(struct saves *s);
 static void bf_magic_user_saves(struct saves *s);
 static void bf_thief_saves(struct saves *s);
+
+int bf_character_attr_mod(unsigned int attr);
+void bf_roll_hp(struct character *c);
+
+/* PROTOTYPES END */
 
 static void
 bf_add_races(struct game *g)
@@ -134,6 +141,27 @@ bf_thief_saves(struct saves *s)
     s->spell = 15u;
 }
 
+void
+bf_roll_hp(struct character *c)
+{
+    int hp = (rand() % c->cls->hit_die) + 1;
+    hp += bf_character_attr_mod(c->attrs.co);
+
+    c->hp = hp > 0 ? hp : 1;
+}
+
+int
+bf_character_attr_mod(unsigned int attr)
+{
+    if (attr <= 3) return -3;
+    if (attr <= 5) return -2;
+    if (attr <= 8) return -1;
+    if (attr <= 12) return 0;
+    if (attr <= 15) return 1;
+    if (attr <= 17) return 2;
+    return 3;
+}
+
 struct game *
 bf_game_create()
 {
@@ -142,6 +170,10 @@ bf_game_create()
         fprintf(stderr, "Unable to allocate memory for game, exiting");
         exit(1);
     }
+
+    // Populate game struct with rule specific funtions
+    g->roll_hp = bf_roll_hp;
+    g->attr_mod = bf_character_attr_mod;
 
     bf_add_races(g);
     bf_add_classes(g);

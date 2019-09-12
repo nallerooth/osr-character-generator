@@ -53,20 +53,8 @@ character_create(struct character *c, struct game *g) {
 
 }
 
-int
-character_attr_mod(int attr)
-{
-    if (attr <= 3) return -3;
-    if (attr <= 5) return -2;
-    if (attr <= 8) return -1;
-    if (attr <= 12) return  0;
-    if (attr <= 15) return 1;
-    if (attr <= 17) return 2;
-    return 3;
-}
-
 void
-character_print(struct character *c)
+character_print(struct character *c, struct game *g)
 {
     printf("%s :: %s %s, Level: %u\n",
             c->name,
@@ -75,12 +63,12 @@ character_print(struct character *c)
             c->lvl);
 
     const char attrf[] = {"  %s:\t%2d [%+d]\n"};
-    printf(attrf, "STR", c->attrs.st, character_attr_mod(c->attrs.st));
-    printf(attrf, "DEX", c->attrs.de, character_attr_mod(c->attrs.de));
-    printf(attrf, "CON", c->attrs.co, character_attr_mod(c->attrs.co));
-    printf(attrf, "INT", c->attrs.in, character_attr_mod(c->attrs.in));
-    printf(attrf, "WIS", c->attrs.wi, character_attr_mod(c->attrs.wi));
-    printf(attrf, "CHA", c->attrs.ch, character_attr_mod(c->attrs.ch));
+    printf(attrf, "STR", c->attrs.st, g->attr_mod(c->attrs.st));
+    printf(attrf, "DEX", c->attrs.de, g->attr_mod(c->attrs.de));
+    printf(attrf, "CON", c->attrs.co, g->attr_mod(c->attrs.co));
+    printf(attrf, "INT", c->attrs.in, g->attr_mod(c->attrs.in));
+    printf(attrf, "WIS", c->attrs.wi, g->attr_mod(c->attrs.wi));
+    printf(attrf, "CHA", c->attrs.ch, g->attr_mod(c->attrs.ch));
 }
 
 int
@@ -94,7 +82,7 @@ main ()
     struct character c;
     character_create(&c, g);
 
-    character_print(&c);
+    character_print(&c, g);
 
 
     /*

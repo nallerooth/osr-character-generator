@@ -27,6 +27,9 @@ struct game {
 
     struct character_race *races;
     int num_races;
+
+     void (*roll_hp)(struct character *c);
+     int (*attr_mod)(unsigned int attr);
 };
 
 void game_destroy(struct game *g);
