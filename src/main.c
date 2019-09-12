@@ -96,5 +96,19 @@ main ()
                 g->races[i].abilities);
     }
 
+    printf("\n");
+
+    for (int i=0; i<g->num_classes; i++) {
+        printf("%s, HD: %u, AB: %u, Saves: [%u, %u, %u, %u, %u]\n",
+                g->classes[i].name,
+                g->classes[i].hit_die,
+                g->classes[i].attack_bonus,
+                g->classes[i].saves.deathray,
+                g->classes[i].saves.wand,
+                g->classes[i].saves.paralyze,
+                g->classes[i].saves.breath,
+                g->classes[i].saves.spell);
+    }
+
     game_destroy(g);
 }

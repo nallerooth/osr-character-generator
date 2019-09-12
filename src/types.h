@@ -36,14 +36,14 @@ struct saves {
 };
 
 struct character_class {
-    char name[11];
-    unsigned char hit_dice;
+    char name[16];
+    unsigned char hit_die;
     unsigned short attack_bonus;
     struct saves saves;
 };
 
 struct character_race {
-    char name[9];
+    char name[16];
     struct attributes req;
     char abilities[255];
     struct saves save_bonuses;
