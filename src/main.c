@@ -1,5 +1,5 @@
 /*
- * =====================================================================================
+ * ============================================================================
  *
  *      Filename:  main.c
  *
@@ -12,56 +12,15 @@
  *
  *      Author:  Nalle Rooth (nalle.rooth@gmail.com)
  *
- * =====================================================================================
+ * ============================================================================
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-enum character_classes {C_CLERIC, C_FIGHTER, C_MAGIC_USER, C_THIEF};
-enum character_races {R_DWARF, R_ELF, R_HALFLING, R_HUMAN};
-
-struct attributes {
-    int st;
-    int de;
-    int co;
-    int in;
-    int wi;
-    int ch;
-};
-
-struct saves {
-    unsigned short deathray;
-    unsigned short wand;
-    unsigned short paralyze;
-    unsigned short breath;
-    unsigned short spell;
-};
-
-struct character_class {
-    char name[11];
-    unsigned char hit_dice;
-    struct saves saves;
-};
-
-struct character_race {
-    char name[9];
-    struct attributes req;
-    char abilities[255];
-};
-
-struct item {
-    char name[16];
-    unsigned int qty;
-};
-
-struct character {
-    char name[20];
-    struct attributes attrs;
-    unsigned short cls;
-    unsigned short lvl;
-    struct item inventory[5];
-};
+#include "types.h"
+#include "game.h"
+#include "games/bf.h"
 
 int roll(int ndie, int sides)
 {
@@ -80,8 +39,6 @@ character_create(struct character *c) {
     c->attrs.in = roll(3, 6);
     c->attrs.wi = roll(3, 6);
     c->attrs.ch = roll(3, 6);
-
-
 }
 
 int
@@ -117,4 +74,27 @@ main ()
     character_create(&c);
 
     character_print(&c);
+
+    struct game *g = bf_game_create();
+
+    printf("Num Races: %d\n", g->num_races);
+
+    for (int i=0; i<g->num_races; i++) {
+        printf("%s, Requirements: %d, %d, %d, %d, %d, %d Saves: %d, %d, %d, %d, %d, Special abilities: %s\n",
+                g->races[i].name,
+                g->races[i].req.st,
+                g->races[i].req.de,
+                g->races[i].req.co,
+                g->races[i].req.in,
+                g->races[i].req.wi,
+                g->races[i].req.ch,
+                g->races[i].save_bonuses.deathray,
+                g->races[i].save_bonuses.wand,
+                g->races[i].save_bonuses.paralyze,
+                g->races[i].save_bonuses.breath,
+                g->races[i].save_bonuses.spell,
+                g->races[i].abilities);
+    }
+
+    game_destroy(g);
 }
