@@ -51,24 +51,53 @@ character_create(struct character *c, struct game *g) {
     unsigned int cls = rand() % g->num_classes;
     c->cls = &g->classes[cls];
 
+    // Roll hitpoints
+    g->roll_hp(c);
 }
 
 void
 character_print(struct character *c, struct game *g)
 {
-    printf("%s :: %s %s, Level: %u\n",
+    /* ATTRIBUTES */
+    unsigned int attrlen = 14;
+    char st[attrlen],
+         de[attrlen],
+         co[attrlen],
+         in[attrlen],
+         wi[attrlen],
+         ch[attrlen];
+
+    const char attrf[] = {"%s:\t%2d [%+d]"};
+    sprintf(st, attrf, "STR", c->attrs.st, g->attr_mod(c->attrs.st));
+    sprintf(de, attrf, "DEX", c->attrs.de, g->attr_mod(c->attrs.de));
+    sprintf(co, attrf, "CON", c->attrs.co, g->attr_mod(c->attrs.co));
+    sprintf(in, attrf, "INT", c->attrs.in, g->attr_mod(c->attrs.in));
+    sprintf(wi, attrf, "WIS", c->attrs.wi, g->attr_mod(c->attrs.wi));
+    sprintf(ch, attrf, "CHA", c->attrs.ch, g->attr_mod(c->attrs.ch));
+
+    /* ATTRIBUTES END */
+
+
+
+
+
+    /* OUTPUT */
+    printf("\n%s :: %s %s \tLevel: %u\n",
             c->name,
-            c->race->name,
+            c->race->desc,
             c->cls->name,
             c->lvl);
 
-    const char attrf[] = {"  %s:\t%2d [%+d]\n"};
-    printf(attrf, "STR", c->attrs.st, g->attr_mod(c->attrs.st));
-    printf(attrf, "DEX", c->attrs.de, g->attr_mod(c->attrs.de));
-    printf(attrf, "CON", c->attrs.co, g->attr_mod(c->attrs.co));
-    printf(attrf, "INT", c->attrs.in, g->attr_mod(c->attrs.in));
-    printf(attrf, "WIS", c->attrs.wi, g->attr_mod(c->attrs.wi));
-    printf(attrf, "CHA", c->attrs.ch, g->attr_mod(c->attrs.ch));
+    printf("--------------------------------------------------------------------------------\n");
+
+    printf("  %s\t\tHP: %u\n", st, c->hp);
+    printf("  %s\t\t\n", de);
+    printf("  %s\t\t\n", co);
+    printf("  %s\t\t\n", in);
+    printf("  %s\t\t\n", wi);
+    printf("  %s\t\t\n", ch);
+    /* OUTPUT END */
+
 }
 
 int

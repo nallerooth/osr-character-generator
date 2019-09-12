@@ -44,6 +44,7 @@ struct character_class {
 
 struct character_race {
     char name[16];
+    char desc[16];
     struct attributes req;
     char abilities[255];
     struct saves save_bonuses;

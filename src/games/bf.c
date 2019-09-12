@@ -31,6 +31,7 @@ bf_add_races(struct game *g)
     struct character_race *r = &g->races[0];
 
     sprintf(r->name, "Dwarf");
+    sprintf(r->desc, "Dwarven");
     sprintf(r->abilities, "Darkvision 60', Stonesense");
     r->req.co = 9;
     r->save_bonuses.deathray = 4;
@@ -41,6 +42,7 @@ bf_add_races(struct game *g)
 
     r++;
     sprintf(r->name, "Elf");
+    sprintf(r->desc, "Elven");
     sprintf(r->abilities, "Darkvision 60', Observant");
     r->save_bonuses.deathray = 0;
     r->save_bonuses.wand = 2,
@@ -50,6 +52,7 @@ bf_add_races(struct game *g)
 
     r++;
     sprintf(r->name, "Halfling");
+    sprintf(r->desc, "Halfling");
     sprintf(r->abilities, "Accurate, Hinding bonus");
     r->req.de = 9;
     r->save_bonuses.deathray = 4;
@@ -60,6 +63,7 @@ bf_add_races(struct game *g)
 
     r++;
     sprintf(r->name, "Human");
+    sprintf(r->desc, "Human");
     sprintf(r->abilities, "10%% extra XP");
     /*r->save_bonuses.deathray = 0;*/
     /*r->save_bonuses.wand = 0,*/
