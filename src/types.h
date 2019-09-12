@@ -57,7 +57,8 @@ struct item {
 struct character {
     char name[20];
     struct attributes attrs;
-    unsigned short cls;
+    struct character_race *race;
+    struct character_class *cls;
     unsigned short lvl;
     struct item inventory[5];
 };

@@ -32,13 +32,25 @@ int roll(int ndie, int sides)
 }
 
 void
-character_create(struct character *c) {
+character_create(struct character *c, struct game *g) {
     c->attrs.st = roll(3, 6);
     c->attrs.de = roll(3, 6);
     c->attrs.co = roll(3, 6);
     c->attrs.in = roll(3, 6);
     c->attrs.wi = roll(3, 6);
     c->attrs.ch = roll(3, 6);
+
+    sprintf(c->name, "Unnamed Char");
+    c->lvl = 1u;
+
+    // Race
+    unsigned int rce = rand() % g->num_races;
+    c->race = &g->races[rce];
+
+    // Class
+    unsigned int cls = rand() % g->num_classes;
+    c->cls = &g->classes[cls];
+
 }
 
 int
@@ -50,12 +62,18 @@ character_attr_mod(int attr)
     if (attr <= 12) return  0;
     if (attr <= 15) return 1;
     if (attr <= 17) return 2;
-    if (attr <= 18) return 3;
+    return 3;
 }
 
 void
 character_print(struct character *c)
 {
+    printf("%s :: %s %s, Level: %u\n",
+            c->name,
+            c->race->name,
+            c->cls->name,
+            c->lvl);
+
     const char attrf[] = {"  %s:\t%2d [%+d]\n"};
     printf(attrf, "STR", c->attrs.st, character_attr_mod(c->attrs.st));
     printf(attrf, "DEX", c->attrs.de, character_attr_mod(c->attrs.de));
@@ -70,13 +88,16 @@ main ()
 {
     srand(time(NULL));
 
+    // Setup game rules
+    struct game *g = bf_game_create();
+
     struct character c;
-    character_create(&c);
+    character_create(&c, g);
 
     character_print(&c);
 
-    struct game *g = bf_game_create();
 
+    /*
     printf("Num Races: %d\n", g->num_races);
 
     for (int i=0; i<g->num_races; i++) {
@@ -109,6 +130,6 @@ main ()
                 g->classes[i].saves.breath,
                 g->classes[i].saves.spell);
     }
-
+    */
     game_destroy(g);
 }
