@@ -14,6 +14,7 @@
  *
  * ============================================================================
  */
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -48,8 +49,32 @@ character_create(struct character *c, struct game *g) {
     c->race = &g->races[rce];
 
     // Class
-    unsigned int cls = rand() % g->num_classes;
-    c->cls = &g->classes[cls];
+
+    // Attempt to assign the most suitable class for the race
+
+    unsigned int cls, cls_id;
+    do {
+        cls = rand() % g->num_classes;
+        // Can the selected race have the current class?
+        cls_id = pow(2, cls); // Class array index to bitmask
+        if ((c->race->allowed_classes & cls_id) != cls_id) {
+            continue;
+        }
+
+        struct character_class *rc = &g->classes[cls];
+        if (c->attrs.st >= rc->requirements.st &&
+            c->attrs.de >= rc->requirements.de &&
+            c->attrs.co >= rc->requirements.co &&
+            c->attrs.in >= rc->requirements.in &&
+            c->attrs.wi >= rc->requirements.wi &&
+            c->attrs.ch >= rc->requirements.ch)
+        {
+            // Requirements are met -> assign class
+            c->cls = &g->classes[cls];
+        } else {
+            printf("Missing primary attribute for class %s\n", g->classes[cls].name);
+        }
+    } while (c->cls == NULL);
 
     // Roll hitpoints
     g->roll_hp(c);
@@ -91,7 +116,7 @@ character_print(struct character *c, struct game *g)
     printf("--------------------------------------------------------------------------------\n");
 
     printf("  %s\t\tHP: %u\n", st, c->hp);
-    printf("  %s\t\t\n", de);
+    printf("  %s\t\tAB: %u\n", de, c->cls->attack_bonus);
     printf("  %s\t\t\n", co);
     printf("  %s\t\t\n", in);
     printf("  %s\t\t\n", wi);

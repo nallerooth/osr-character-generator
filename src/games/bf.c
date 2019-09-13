@@ -4,6 +4,13 @@
 #include "../game.h"
 #include "../types.h"
 
+
+enum ClassIndex{
+    C_CLERIC     = 1,
+    C_FIGHTER    = 2,
+    C_MAGIC_USER = 4,
+    C_THIEF      = 8 };
+
 /* PROTOTYPES */
 
 static void bf_cleric_saves(struct saves *s);
@@ -29,7 +36,7 @@ bf_add_races(struct game *g)
 
     // Races
     struct character_race *r = &g->races[0];
-
+    r->allowed_classes = C_CLERIC|C_FIGHTER|C_THIEF;
     sprintf(r->name, "Dwarf");
     sprintf(r->desc, "Dwarven");
     sprintf(r->abilities, "Darkvision 60', Stonesense");
@@ -41,6 +48,7 @@ bf_add_races(struct game *g)
     r->save_bonuses.spell = 4;
 
     r++;
+    r->allowed_classes = C_CLERIC|C_FIGHTER|C_MAGIC_USER|C_THIEF;
     sprintf(r->name, "Elf");
     sprintf(r->desc, "Elven");
     sprintf(r->abilities, "Darkvision 60', Observant");
@@ -51,6 +59,7 @@ bf_add_races(struct game *g)
     r->save_bonuses.spell = 2;
 
     r++;
+    r->allowed_classes = C_CLERIC|C_FIGHTER|C_THIEF;
     sprintf(r->name, "Halfling");
     sprintf(r->desc, "Halfling");
     sprintf(r->abilities, "Accurate, Hinding bonus");
@@ -62,6 +71,7 @@ bf_add_races(struct game *g)
     r->save_bonuses.spell = 4;
 
     r++;
+    r->allowed_classes = C_CLERIC|C_FIGHTER|C_MAGIC_USER|C_THIEF;
     sprintf(r->name, "Human");
     sprintf(r->desc, "Human");
     sprintf(r->abilities, "10%% extra XP");
@@ -85,24 +95,28 @@ bf_add_classes(struct game *g)
     c->hit_die = 6u;
     c->attack_bonus = 1u;
     bf_cleric_saves(&c->saves);
+    c->requirements.wi = 9;
 
     c++;
     sprintf(c->name, "Fighter");
     c->hit_die = 8u;
     c->attack_bonus = 1u;
     bf_fighter_saves(&c->saves);
+    c->requirements.st = 9;
 
     c++;
     sprintf(c->name, "Magic-User");
     c->hit_die = 4u;
     c->attack_bonus = 1u;
     bf_magic_user_saves(&c->saves);
+    c->requirements.in = 9;
 
     c++;
     sprintf(c->name, "Thief");
     c->hit_die = 4u;
     c->attack_bonus = 1u;
     bf_thief_saves(&c->saves);
+    c->requirements.de = 9;
 }
 
 static void

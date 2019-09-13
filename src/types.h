@@ -40,9 +40,11 @@ struct character_class {
     unsigned char hit_die;
     unsigned short attack_bonus;
     struct saves saves;
+    struct attributes requirements;
 };
 
 struct character_race {
+    unsigned int allowed_classes;
     char name[16];
     char desc[16];
     struct attributes req;
