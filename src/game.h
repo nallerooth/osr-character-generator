@@ -29,6 +29,8 @@ struct game {
     int num_races;
 
      void (*roll_hp)(struct character *c);
+     void (*roll_attributes)(struct character *c);
+     int (*get_valid_races)(int *valid, struct game *g, struct character *c);
      int (*attr_mod)(unsigned int attr);
 };
 
