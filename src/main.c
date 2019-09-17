@@ -21,7 +21,7 @@
 
 #include "types.h"
 #include "game.h"
-#include "games/bf.h"
+#include "rulesets/basic_fantasy.h"
 
 int roll(int ndie, int sides)
 {
