@@ -27,7 +27,7 @@ int roll(int ndie, int sides)
 {
     int val = 0;
     while (ndie-- > 0) {
-        val += (random() % sides) + 1;
+        val += (rand() % sides) + 1;
     }
     return val;
 }
@@ -137,7 +137,6 @@ main ()
     character_create(&c, g);
 
     character_print(&c, g);
-
 
     /*
     printf("Num Races: %d\n", g->num_races);
