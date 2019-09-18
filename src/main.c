@@ -24,6 +24,11 @@
 #include "game.h"
 #include "rulesets/basic_fantasy.h"
 
+struct class_margin {
+    int class_id;
+    int margin;
+};
+
 static int
 check_race_requirements(struct character_race *r, struct character *c)
 {
@@ -50,6 +55,12 @@ check_class_requirements(struct character_class *cl, struct character *c)
 }
 
 static int
+compare(const void *a, const void *b)
+{
+    return (*(struct class_margin *)b).margin - (*(struct class_margin *)a).margin;
+}
+
+static int
 get_best_class(struct character *c, struct game *g, int *valid_classes, int num_valid_classes)
 {
     if (num_valid_classes == 1) {
@@ -57,7 +68,7 @@ get_best_class(struct character *c, struct game *g, int *valid_classes, int num_
     }
 
     struct attributes *req;
-    int margins[num_valid_classes];
+    struct class_margin margins[num_valid_classes];
     for (int i = 0; i < num_valid_classes; i++) {
         req = &g->classes[valid_classes[i]].req;
 
@@ -67,18 +78,27 @@ get_best_class(struct character *c, struct game *g, int *valid_classes, int num_
                 req->in,
                 req->wi);
 
-        margins[i] = 0;
-        if (req->st >= 3) { margins[i] += c->attrs.st - req->st; }
-        if (req->de >= 3) { margins[i] += c->attrs.de - req->de; }
-        if (req->in >= 3) { margins[i] += c->attrs.in - req->in; }
-        if (req->wi >= 3) { margins[i] += c->attrs.wi - req->wi; }
+        margins[i].class_id = valid_classes[i];
+        margins[i].margin = 0;
+        if (req->st >= 3) { margins[i].margin += c->attrs.st - req->st; }
+        if (req->de >= 3) { margins[i].margin += c->attrs.de - req->de; }
+        if (req->in >= 3) { margins[i].margin += c->attrs.in - req->in; }
+        if (req->wi >= 3) { margins[i].margin += c->attrs.wi - req->wi; }
     }
 
     printf("Margins:\n");
     for (int i = 0; i < num_valid_classes; i++) {
-        printf("  %s: %d\n", g->classes[valid_classes[i]].name, margins[i]);
+        printf("  %s: %d\n", g->classes[valid_classes[i]].name, margins[i].margin);
+    }
+
+    qsort(margins, num_valid_classes, sizeof(struct class_margin), compare);
+    printf("\nSorted:");
+    for (int i = 0; i < num_valid_classes; ++i) {
+        printf("  \n%d => %d", margins[i].class_id, margins[i].margin);
     }
     printf("\n");
+
+    return margins[0].class_id;
 }
 
 void
