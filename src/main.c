@@ -24,7 +24,8 @@
 #include "game.h"
 #include "rulesets/basic_fantasy.h"
 
-static int check_race_requirements(struct character_race *r, struct character *c)
+static int
+check_race_requirements(struct character_race *r, struct character *c)
 {
     return
         c->attrs.st >= r->req_min.st && c->attrs.st <= r->req_max.st &&
@@ -36,7 +37,8 @@ static int check_race_requirements(struct character_race *r, struct character *c
 }
 
 
-static int check_class_requirements(struct character_class *cl, struct character *c)
+static int
+check_class_requirements(struct character_class *cl, struct character *c)
 {
     return
         c->attrs.st >= cl->req.st &&
@@ -45,6 +47,38 @@ static int check_class_requirements(struct character_class *cl, struct character
         c->attrs.in >= cl->req.in &&
         c->attrs.wi >= cl->req.wi &&
         c->attrs.ch >= cl->req.ch;
+}
+
+static int
+get_best_class(struct character *c, struct game *g, int *valid_classes, int num_valid_classes)
+{
+    if (num_valid_classes == 1) {
+        return valid_classes[0];
+    }
+
+    struct attributes *req;
+    int margins[num_valid_classes];
+    for (int i = 0; i < num_valid_classes; i++) {
+        req = &g->classes[valid_classes[i]].req;
+
+        printf("Requirements :: STR: %d, DEX: %d, INT: %d, WIS: %d\n",
+                req->st,
+                req->de,
+                req->in,
+                req->wi);
+
+        margins[i] = 0;
+        if (req->st >= 3) { margins[i] += c->attrs.st - req->st; }
+        if (req->de >= 3) { margins[i] += c->attrs.de - req->de; }
+        if (req->in >= 3) { margins[i] += c->attrs.in - req->in; }
+        if (req->wi >= 3) { margins[i] += c->attrs.wi - req->wi; }
+    }
+
+    printf("Margins:\n");
+    for (int i = 0; i < num_valid_classes; i++) {
+        printf("  %s: %d\n", g->classes[valid_classes[i]].name, margins[i]);
+    }
+    printf("\n");
 }
 
 void
@@ -90,9 +124,12 @@ character_create(struct character *c, struct game *g) {
         fprintf(stderr, "No valid classes for given attributes. Exiting.");
         exit(1);
     }
-    unsigned int cls = rand() % num_valid_classes;
-    c->race = &g->races[rce];
 
+    int cls = get_best_class(c, g, valid_classes, num_valid_classes);
+    /*unsigned int cls = rand() % num_valid_classes;*/
+    c->cls = &g->classes[cls];
+
+    /* Debug */
     printf("Attributes: %2d %2d %2d %2d %2d %2d\n",
             c->attrs.st,
             c->attrs.de,
@@ -104,33 +141,6 @@ character_create(struct character *c, struct game *g) {
     for(int i = 0; i < num_valid_classes; i++) {
         printf(" %d", valid_classes[i]);
     }
-
-    exit(0);
-    /* Attempt to assign the most suitable class for the race */
-
-    unsigned int cls2, cls_id;
-    do {
-        cls = rand() % g->num_classes;
-        /* Can the selected race have the current class? */
-        cls_id = pow(2, cls); // Class array index to bitmask
-        if ((c->race->allowed_classes & cls_id) != cls_id) {
-            continue;
-        }
-
-        struct character_class *rc = &g->classes[cls];
-        if (c->attrs.st >= rc->req.st &&
-            c->attrs.de >= rc->req.de &&
-            c->attrs.co >= rc->req.co &&
-            c->attrs.in >= rc->req.in &&
-            c->attrs.wi >= rc->req.wi &&
-            c->attrs.ch >= rc->req.ch)
-        {
-            /* Requirements are met -> assign class */
-            c->cls = &g->classes[cls];
-        } else {
-            printf("Missing primary attribute for class %s\n", g->classes[cls].name);
-        }
-    } while (c->cls == NULL);
 
     /* Roll hitpoints */
     g->roll_hp(c);

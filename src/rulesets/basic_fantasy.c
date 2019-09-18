@@ -20,7 +20,6 @@ static void _bf_magic_user_saves(struct saves *s);
 static void _bf_thief_saves(struct saves *s);
 static void _bf_set_base_reqs(struct character_race *r);
 static char _bf_check_valid_attrs(struct character *c);
-static int _bf_get_valid_races(int *valid, struct game *g, struct character *c);
 
 int bf_character_attr_mod(unsigned int attr);
 void bf_roll_hp(struct character *c);
@@ -211,14 +210,6 @@ static void _bf_set_base_reqs(struct character_race *r)
     r->req_max.ch = 18;
 }
 
-static int
-_bf_get_valid_races(int *valid, struct game *g, struct character *c)
-{
-    for (int i=0; i < g->num_races; i++) {
-
-    }
-}
-
 void
 bf_roll_hp(struct character *c)
 {
@@ -253,7 +244,6 @@ bf_game_create()
     g->roll_hp = bf_roll_hp;
     g->roll_attributes = bf_roll_attributes;
     g->attr_mod = bf_character_attr_mod;
-    g->get_valid_races = _bf_get_valid_races;
     bf_add_races(g);
     bf_add_classes(g);
 
