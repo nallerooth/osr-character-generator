@@ -19,12 +19,12 @@
 #define __TYPES_H__
 
 struct attributes {
-    int st;
-    int de;
-    int co;
-    int in;
-    int wi;
-    int ch;
+    unsigned int st;
+    unsigned int de;
+    unsigned int co;
+    unsigned int in;
+    unsigned int wi;
+    unsigned int ch;
 };
 
 struct saves {
@@ -36,7 +36,8 @@ struct saves {
 };
 
 struct character_class {
-    char name[16];
+    unsigned int class_id;
+    char name[20];
     unsigned char hit_die;
     unsigned short attack_bonus;
     struct saves saves;

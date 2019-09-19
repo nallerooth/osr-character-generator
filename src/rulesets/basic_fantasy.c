@@ -7,10 +7,12 @@
 
 
 enum ClassIndex{
-    C_CLERIC     = 1,
-    C_FIGHTER    = 2,
-    C_MAGIC_USER = 4,
-    C_THIEF      = 8 };
+    C_CLERIC              = 1,
+    C_FIGHTER             = 2,
+    C_MAGIC_USER          = 4,
+    C_THIEF               = 8,
+    C_FIGHTER_MAGIC_USER  = 16,
+    C_MAGIC_USER_THIEF    = 32};
 
 /* PROTOTYPES */
 
@@ -18,6 +20,7 @@ static void _bf_cleric_saves(struct saves *s);
 static void _bf_fighter_saves(struct saves *s);
 static void _bf_magic_user_saves(struct saves *s);
 static void _bf_thief_saves(struct saves *s);
+static void _bf_fighter_magic_user_saves(struct saves *s);
 static void _bf_set_base_reqs(struct character_race *r);
 static char _bf_check_valid_attrs(struct character *c);
 
@@ -30,7 +33,6 @@ void
 bf_roll_attributes(struct character *c)
 {
     do {
-        fprintf(stderr, "Rolling attributes..\n");
         c->attrs.st = roll(3, 6);
         c->attrs.de = roll(3, 6);
         c->attrs.co = roll(3, 6);
@@ -67,7 +69,7 @@ bf_add_races(struct game *g)
     r->save_bonuses.spell = 4;
 
     r++;
-    r->allowed_classes = C_CLERIC|C_FIGHTER|C_MAGIC_USER|C_THIEF;
+    r->allowed_classes = C_CLERIC|C_FIGHTER|C_MAGIC_USER|C_THIEF|C_FIGHTER_MAGIC_USER|C_MAGIC_USER_THIEF;
     sprintf(r->name, "Elf");
     sprintf(r->desc, "Elven");
     sprintf(r->abilities, "Darkvision 60', Observant");
@@ -112,11 +114,12 @@ static void
 bf_add_classes(struct game *g)
 {
     // Classes
-    g->num_classes = 4;
+    g->num_classes = 6;
     g->classes = malloc(sizeof(struct character_class) * g->num_classes);
 
     struct character_class *c = &g->classes[0];
     sprintf(c->name, "Cleric");
+    c->class_id = C_CLERIC;
     c->hit_die = 6u;
     c->attack_bonus = 1u;
     _bf_cleric_saves(&c->saves);
@@ -124,6 +127,7 @@ bf_add_classes(struct game *g)
 
     c++;
     sprintf(c->name, "Fighter");
+    c->class_id = C_FIGHTER;
     c->hit_die = 8u;
     c->attack_bonus = 1u;
     _bf_fighter_saves(&c->saves);
@@ -131,6 +135,7 @@ bf_add_classes(struct game *g)
 
     c++;
     sprintf(c->name, "Magic-User");
+    c->class_id = C_MAGIC_USER;
     c->hit_die = 4u;
     c->attack_bonus = 1u;
     _bf_magic_user_saves(&c->saves);
@@ -138,10 +143,29 @@ bf_add_classes(struct game *g)
 
     c++;
     sprintf(c->name, "Thief");
+    c->class_id = C_THIEF;
     c->hit_die = 4u;
     c->attack_bonus = 1u;
     _bf_thief_saves(&c->saves);
+    c->req.de = 9u;
+
+    c++;
+    sprintf(c->name, "Fighter/Magic-User");
+    c->class_id = C_FIGHTER_MAGIC_USER;
+    c->hit_die = 6u;
+    c->attack_bonus = 1u;
+    _bf_fighter_magic_user_saves(&c->saves);
+    c->req.st = 9u;
+    c->req.in = 9u;
+
+    c++;
+    sprintf(c->name, "Magic-User/Thief");
+    c->class_id = C_MAGIC_USER_THIEF;
+    c->hit_die = 4u;
+    c->attack_bonus = 1u;
+    _bf_thief_saves(&c->saves); // Same as thief for level 1
     c->req.de = 9;
+    c->req.in = 9;
 }
 
 static void
@@ -184,30 +208,40 @@ _bf_thief_saves(struct saves *s)
     s->spell = 15u;
 }
 
+static void
+_bf_fighter_magic_user_saves(struct saves *s)
+{
+    s->deathray = 13u;
+    s->wand = 14u;
+    s->paralyze = 13u;
+    s->breath = 16u;
+    s->spell = 15u;
+}
+
 static char
 _bf_check_valid_attrs(struct character *c)
 {
-    return c->attrs.st >= 9 ||
-        c->attrs.de >= 9 ||
-        c->attrs.in >= 9 ||
-        c->attrs.wi >= 9;
+    return c->attrs.st >= 9u ||
+        c->attrs.de >= 9u ||
+        c->attrs.in >= 9u ||
+        c->attrs.wi >= 9u;
 }
 
 static void _bf_set_base_reqs(struct character_race *r)
 {
-    r->req_min.st = 3;
-    r->req_min.de = 3;
-    r->req_min.co = 3;
-    r->req_min.in = 3;
-    r->req_min.wi = 3;
-    r->req_min.ch = 3;
+    r->req_min.st = 3u;
+    r->req_min.de = 3u;
+    r->req_min.co = 3u;
+    r->req_min.in = 3u;
+    r->req_min.wi = 3u;
+    r->req_min.ch = 3u;
 
-    r->req_max.st = 18;
-    r->req_max.de = 18;
-    r->req_max.co = 18;
-    r->req_max.in = 18;
-    r->req_max.wi = 18;
-    r->req_max.ch = 18;
+    r->req_max.st = 18u;
+    r->req_max.de = 18u;
+    r->req_max.co = 18u;
+    r->req_max.in = 18u;
+    r->req_max.wi = 18u;
+    r->req_max.ch = 18u;
 }
 
 void
@@ -222,12 +256,12 @@ bf_roll_hp(struct character *c)
 int
 bf_character_attr_mod(unsigned int attr)
 {
-    if (attr <= 3) return -3;
-    if (attr <= 5) return -2;
-    if (attr <= 8) return -1;
-    if (attr <= 12) return 0;
-    if (attr <= 15) return 1;
-    if (attr <= 17) return 2;
+    if (attr <= 3u) return -3;
+    if (attr <= 5u) return -2;
+    if (attr <= 8u) return -1;
+    if (attr <= 12u) return 0;
+    if (attr <= 15u) return 1;
+    if (attr <= 17u) return 2;
     return 3;
 }
 

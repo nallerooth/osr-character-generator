@@ -24,6 +24,8 @@
 #include "game.h"
 #include "rulesets/basic_fantasy.h"
 
+#define DEBUG 1
+
 struct class_margin {
     int class_id;
     int margin;
@@ -45,6 +47,11 @@ check_race_requirements(struct character_race *r, struct character *c)
 static int
 check_class_requirements(struct character_class *cl, struct character *c)
 {
+    /* Is the class valid for the character's race? */
+    if ((c->race->allowed_classes & cl->class_id) == 0) {
+        return 0;
+    }
+
     return
         c->attrs.st >= cl->req.st &&
         c->attrs.de >= cl->req.de &&
@@ -72,11 +79,13 @@ get_best_class(struct character *c, struct game *g, int *valid_classes, int num_
     for (int i = 0; i < num_valid_classes; i++) {
         req = &g->classes[valid_classes[i]].req;
 
-        printf("Requirements :: STR: %d, DEX: %d, INT: %d, WIS: %d\n",
-                req->st,
-                req->de,
-                req->in,
-                req->wi);
+        if (DEBUG) {
+            printf("Requirements :: STR: %d, DEX: %d, INT: %d, WIS: %d\n",
+                    req->st,
+                    req->de,
+                    req->in,
+                    req->wi);
+        }
 
         margins[i].class_id = valid_classes[i];
         margins[i].margin = 0;
@@ -86,17 +95,22 @@ get_best_class(struct character *c, struct game *g, int *valid_classes, int num_
         if (req->wi >= 3) { margins[i].margin += c->attrs.wi - req->wi; }
     }
 
-    printf("Margins:\n");
-    for (int i = 0; i < num_valid_classes; i++) {
-        printf("  %s: %d\n", g->classes[valid_classes[i]].name, margins[i].margin);
+    if (DEBUG) {
+        printf("Margins:\n");
+        for (int i = 0; i < num_valid_classes; i++) {
+            printf("  %s: %d\n", g->classes[valid_classes[i]].name, margins[i].margin);
+        }
     }
 
     qsort(margins, num_valid_classes, sizeof(struct class_margin), compare);
-    printf("\nSorted:");
-    for (int i = 0; i < num_valid_classes; ++i) {
-        printf("  \n%d => %d", margins[i].class_id, margins[i].margin);
+
+    if (DEBUG) {
+        printf("\nSorted:");
+        for (int i = 0; i < num_valid_classes; ++i) {
+            printf("  \n%d => %d", margins[i].class_id, margins[i].margin);
+        }
+        printf("\n");
     }
-    printf("\n");
 
     return margins[0].class_id;
 }
@@ -105,8 +119,8 @@ void
 character_create(struct character *c, struct game *g) {
 
     /* At least one of STR, DEX, INT or WIS will be 9 or higher, allowing at
-     * least one of the base classes. Also, humans can have any attributes,
-     * so at least one race will be available. */
+     * least one of the base classes. Also, humans lack any attribute
+     * requirements, so at least one race will be available. */
     g->roll_attributes(c);
 
 
@@ -141,27 +155,28 @@ character_create(struct character *c, struct game *g) {
     }
 
     if (num_valid_classes == 0) {
-        fprintf(stderr, "No valid classes for given attributes. Exiting.");
+        fprintf(stderr, "No valid classes:\n%s: %2d %2d %2d %2d %2d %2d\n",
+            c->race->name, c->attrs.st, c->attrs.de, c->attrs.co,
+            c->attrs.in, c->attrs.wi, c->attrs.ch);
         exit(1);
     }
 
     int cls = get_best_class(c, g, valid_classes, num_valid_classes);
-    /*unsigned int cls = rand() % num_valid_classes;*/
     c->cls = &g->classes[cls];
 
-    /* Debug */
-    printf("Attributes: %2d %2d %2d %2d %2d %2d\n",
-            c->attrs.st,
-            c->attrs.de,
-            c->attrs.co,
-            c->attrs.in,
-            c->attrs.wi,
-            c->attrs.ch);
-    printf("Classes: ");
-    for(int i = 0; i < num_valid_classes; i++) {
-        printf(" %d", valid_classes[i]);
+    if (DEBUG) {
+        printf("Attributes: %2d %2d %2d %2d %2d %2d\n",
+                c->attrs.st,
+                c->attrs.de,
+                c->attrs.co,
+                c->attrs.in,
+                c->attrs.wi,
+                c->attrs.ch);
+        printf("Classes: ");
+        for(int i = 0; i < num_valid_classes; i++) {
+            printf(" %d", valid_classes[i]);
+        }
     }
-
     /* Roll hitpoints */
     g->roll_hp(c);
 
