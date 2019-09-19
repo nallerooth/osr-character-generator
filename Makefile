@@ -1,6 +1,6 @@
 TARGET_EXEC ?= osrcg
 
-BUILD_DIR ?= ./build
+BUILD_DIR ?= ./bin
 SRC_DIRS ?= ./src
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
