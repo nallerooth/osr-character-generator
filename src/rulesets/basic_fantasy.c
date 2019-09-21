@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "basic_fantasy.h"
 #include "../common.h"
 #include "../game.h"
 #include "../types.h"
@@ -23,9 +24,6 @@ static void _bf_thief_saves(struct saves *s);
 static void _bf_fighter_magic_user_saves(struct saves *s);
 static void _bf_set_base_reqs(struct character_race *r);
 static char _bf_check_valid_attrs(struct character *c);
-
-int bf_character_attr_mod(unsigned int attr);
-void bf_roll_hp(struct character *c);
 
 /* PROTOTYPES END */
 
